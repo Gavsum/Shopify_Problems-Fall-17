@@ -20,6 +20,10 @@
         * resource could be food item other than Cookie, can be specified with cmd line arg
         * Specify fill or sort rules from cmd line arg
 
+* Usage:
+    * python cookies.py --url https://backend-challenge-fall-2017.herokuapp.com/orders.json  --srt amt id --otyp Cookie --fill
+
+
 Solution in cookies.py
 
 ### Problem 2: Data Analysis

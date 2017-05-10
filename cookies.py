@@ -17,6 +17,8 @@ def get_inputs():
 
     parser.add_argument('--otyp', type=str, nargs='+', help='order type to be filled (eg: Cookie, pudding, etc)')
 
+    parser.add_argument('--fill', action='store_true', default=False, help="Include --fill flag to specify order fill action once sorted")
+
     args = parser.parse_args()
 
     return(args)
@@ -61,7 +63,6 @@ def trim_orders(all_orders, otype):
                                 order["fulfilled"] = False
                                 trimmed_orders.append(order)
 
-
     return trimmed_orders
 
 # Sort vars need param to define ascend/descend for each var
@@ -72,30 +73,48 @@ def sort_orders(ords_to_fill, sort_vars):
 
     return ords_to_fill
 
-def fill_orders(order_list, resource_avail):
+def out_putter(order_list, resource_avail, fill_now):
     output = {"remaining_cookies": resource_avail, "unfulfilled_orders":[]}
 
-    for entry in order_list:
-        if(entry["amt"] > output["remaining_cookies"]):
+    if(fill_now):
+        for entry in order_list:
+            if(entry["amt"] > output["remaining_cookies"]):
+                (output["unfulfilled_orders"]).append(entry["id"])
+
+            elif(entry["amt"] <= output["remaining_cookies"]):
+                output["remaining_cookies"] = output["remaining_cookies"] - entry["amt"]
+                entry["fulfilled"] = True
+
+        (output["unfulfilled_orders"]).sort()
+
+    else:
+        for entry in order_list:
             (output["unfulfilled_orders"]).append(entry["id"])
 
-        elif(entry["amt"] <= output["remaining_cookies"]):
-            output["remaining_cookies"] = output["remaining_cookies"] - entry["amt"]
-            entry["fulfilled"] = True
 
-    (output["unfulfilled_orders"]).sort()
+    #(output["unfulfilled_orders"]).sort()
 
     return output
 
 
 def main(argv):
     input_args = get_inputs()
-    page_info = get_resource_info(input_args.url[0])
-    json_pages = get_paginated(input_args.url[0], page_info['num_pages'])
-    trimmed_json = trim_orders(json_pages, input_args.otyp)
-    prioritized = sort_orders(trimmed_json, input_args.srt)
-    results = fill_orders(prioritized, page_info['resource_avail'])
+    url = input_args.url[0]
+    order_type = input_args.otyp
+    sort_param = input_args.srt
+    order_fill_bool = input_args.fill
 
+    page_info = get_resource_info(url)
+
+    num_pages = page_info['num_pages']
+    resource_avail =  page_info['resource_avail']
+
+    json_pages = get_paginated(url, num_pages)
+    trimmed_json = trim_orders(json_pages, order_type)
+    prioritized = sort_orders(trimmed_json, sort_param)
+    results = out_putter(prioritized, resource_avail, order_fill_bool)
+
+    print(json.dumps(prioritized, indent=2))
     print(json.dumps(results, indent=2))
 
 
