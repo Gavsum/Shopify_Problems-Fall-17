@@ -21,7 +21,10 @@
         * Specify fill or sort rules from cmd line arg
 
 * Usage:
-    * python cookies.py --url https://backend-challenge-fall-2017.herokuapp.com/orders.json  --srt amt id --otyp Cookie --fill
+    ```
+     python cookies.py --url https://backend-challenge-fall-2017.herokuapp.com/orders.json  --srt amt id --otyp Cookie --fill
+     
+     ```
 
 
 Solution in cookies.py
